@@ -1,0 +1,68 @@
+---
+# ------------------------------------------
+# file: SDA_1_2_8/roles/design-network_settings-network/tasks/get_site_id.yml
+# ver: 1.2.0
+# ansible ver: 2.7.8
+# python ver: 2.7.15
+# dna center ver: 1.2.8
+# dna center rest api ver: 1.0.2
+# author: Pradeep Singh (pradeesi@cisco.com)
+# description: This task will fetch site details.
+# DNAC Menu Path: Design --> Network Settings --> Network
+# ------------------------------------------
+
+  - name: "Block - Get Site Details"
+    block:
+
+      - name: "If parent_name_hierarchy is equal to Global"
+        block:
+          - name: "Set site_id as -1 for Global Group"
+            set_fact:
+              site_id: '-1'
+        when:
+          - site_full_path|upper == 'GLOBAL'
+
+      - name: "If parent_name_hierarchy is NOT equal to Global"
+        block:
+
+          - name: "Split site names using the delimiter '/' "
+            set_fact:
+              site_name: "{{  site_full_path.split('/')[-1] }}"
+
+          - name: "Get Site Details"
+            uri:
+              url: https://{{ dnac_credentials.ip_add }}/api/v1/group/?groupName={{ site_name }}
+              method: GET
+              validate_certs: no
+              headers:
+                X-Auth-Token: "{{ token.json.Token }}"
+                Content-Type: 'application/json'
+              status_code: 200
+            register: get_site_details_response
+
+
+          - name: "Find the required site from the returned site records"
+            set_fact:
+              site_record: "{{ lookup('template', 'filter_sites.j2') }}"
+
+
+          - name: "Block: If the Site Record Exists?"
+            block:
+              - name: "Parse Site Details"
+                set_fact:
+                  site_id: "{{ site_record.id }}"
+            when:
+              - site_record != ''
+
+
+          - name: "Block: If the Site Record Doesn't Exist?"
+            block:
+              - fail:
+                  msg: "Site Doesn't Exist: {{ site_full_path }}"
+            when:
+              - site_record == ''
+        when:
+          - site_full_path|upper != 'GLOBAL'
+
+    when:
+      - site_full_path is defined

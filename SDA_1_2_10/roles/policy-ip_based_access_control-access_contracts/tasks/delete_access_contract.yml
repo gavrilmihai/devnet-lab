@@ -1,0 +1,42 @@
+---
+# ------------------------------------------
+# file: SDA_1_2_8/roles/policy-ip_based_access_control-access_contracts/tasks/delete_access_contract.yml
+# ver: 1.2.0
+# ansible ver: 2.7.8
+# python ver: 2.7.15
+# dna center ver: 1.2.8
+# dna center rest api ver: 1.0.2
+# author: Pradeep Singh (pradeesi@cisco.com)
+# description: This playbook will delete an access contract.
+# DNAC Menu Path: Policy --> IP Based Access Control --> Access Contract
+# ------------------------------------------
+
+  - name: "Get Access Contract Details: {{ access_contract.name }}"
+    include_tasks: get_access_contract.yml
+
+  - name: "Delete Access Contract: {{ access_contract.name }}"
+    block:
+      - name: Submit Delete Access Contract Task
+        uri:
+          url: https://{{ dnac_credentials.ip_add }}/api/v2/data/cfs-intent/contract/access/
+          method: POST
+          validate_certs: no
+          headers:
+            X-Auth-Token: "{{ token.json.Token }}"
+            Content-Type: 'application/json'
+          body_type: json
+          body: "{{ lookup('template', 'get_delete_access_contract_json.j2') }}"
+          status_code: 202
+        register: response
+
+      - name: Parse TaskID for Delete Access Contract Task
+        set_fact:
+          dnac_task_name: "Delete Access Contract: {{ access_contract.name }}"
+          dnac_task_id: "{{ response.json.response.taskId }}"
+
+      - name: Check Delete Access Contract Task Status
+        include_role:
+          name: get_task_status
+    when:
+     - access_contract_id != ''
+     - access_contract.action == "delete"

@@ -1,0 +1,54 @@
+---
+# ------------------------------------------
+# file: SDA_1_2_8/roles/network_discovery/tasks/delete_network_discovery_job.yml
+# ver: 1.2.0
+# ansible ver: 2.7.8
+# python ver: 2.7.15
+# dna center ver: 1.2.8
+# dna center rest api ver: 1.0.2
+# author: Pradeep Singh (pradeesi@cisco.com)
+# description: This task will delete existing network discovery tasks.
+# DNAC Menu Path: None (Home Page Tools Section)
+# ------------------------------------------
+
+  - name: "Detete Network Discovery Job: {{ discovery_item.discovery_name }}"
+    block:
+
+      - name: Check if the Network Discovery Job Exists?
+        include_tasks: get_network_discovery_job_details.yml
+        vars:
+          discovery_name: "{{ discovery_item.discovery_name }}"
+
+      - name: "Delete Discovery Job"
+        block:
+
+          - name: "Invoke Delete Network Discovery Job API for: {{ discovery_item.discovery_name }}"
+            uri:
+              url: https://{{ dnac_credentials.ip_add }}/dna/intent/api/v1/discovery/{{ nw_discovery_id }}
+              method: DELETE
+              validate_certs: no
+              headers:
+                X-Auth-Token: "{{ token.json.Token }}"
+                Content-Type: 'application/json'
+              status_code: 202
+            register: delete_discovery_response
+
+          - name: "Check Status of Delete Discovery Job: {{ discovery_item.discovery_name }}"
+            include_role:
+              name: get_task_status_v2
+            vars:
+                dnac_task_name: "Delete Network Discovery Job: {{ discovery_item.discovery_name }}"
+                dnac_task_id: "{{ delete_discovery_response.json.response.taskId }}"
+
+        when:
+          - nw_discovery_id != ''
+
+      - name: "Discovery Job Doesn't Exist?"
+        debug:
+            msg: "Network Discovery Job Doesn't Exist with Name: {{ discovery_item.discovery_name }}"
+            verbosity: 0
+        when:
+          - nw_discovery_id == ''
+
+    when:
+      - discovery_item.discovery_name is defined

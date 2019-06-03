@@ -1,0 +1,5 @@
+{%- for item in get_virtual_nw_response.json.response -%}
+  {%- if item.name == virtual_network.name -%}
+    {{ item.id }}
+  {%- endif -%}
+{%- endfor -%}

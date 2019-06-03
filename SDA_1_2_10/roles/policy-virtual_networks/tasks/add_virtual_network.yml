@@ -1,0 +1,50 @@
+---
+# ------------------------------------------
+# file: SDA_1_2_8/roles/policy-virtual_networks/tasks/add_virtual_network.yml
+# ver: 1.2.0
+# ansible ver: 2.7.8
+# python ver: 2.7.15
+# dna center ver: 1.2.8
+# dna center rest api ver: 1.0.2
+# author: Pradeep Singh (pradeesi@cisco.com)
+# description: This playbook will add a virtual network.
+# DNAC Menu Path: Policy --> Virtual Network
+# ------------------------------------------
+
+  - name: "Get Virtual Network Details: {{ virtual_network.name }}"
+    include_tasks: get_virtual_network_details.yml
+
+
+  - name: "Add Virtual Network: {{ virtual_network.name }}"
+    block:
+
+      - name: Get Scalable Group Details
+        include_tasks: get_scalable_groups.yml
+        when:
+          - virtual_network.scalable_groups is defined
+
+      - name: Submit Add Virtual Network Task
+        uri:
+          url: https://{{ dnac_credentials.ip_add }}/api/v2/data/customer-facing-service/virtualnetworkcontext/
+          method: POST
+          validate_certs: no
+          headers:
+            X-Auth-Token: "{{ token.json.Token }}"
+            Content-Type: 'application/json'
+          body_type: json
+          body: "{{ lookup('template', 'get_add_virtual_network_json.j2') }}"
+          status_code: 202
+        register: response
+
+      - name: Parse TaskID for Add Virtual Network Task
+        set_fact:
+          dnac_task_name: "Add Virtual Network: {{ virtual_network.name }}"
+          dnac_task_id: "{{ response.json.response.taskId }}"
+
+      - name: Check Add Virtual Network Task Status
+        include_role:
+          name: get_task_status
+
+    when:
+      - virtual_network_id  == ''
+      - virtual_network.action == 'add'

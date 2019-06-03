@@ -1,0 +1,34 @@
+---
+# ------------------------------------------
+# file: SDA_1_2_8/roles/design-network_hierarchy/tasks/main.yml
+# ver: 1.2.0
+# ansible ver: 2.7.8
+# python ver: 2.7.15
+# dna center ver: 1.2.8
+# dna center rest api ver: 1.0.2
+# author: Pradeep Singh (pradeesi@cisco.com)
+# description: This role will manage network sites.
+# DNAC Menu Path: Design --> Network Hierarchy
+# ------------------------------------------
+
+  - name: "Manage DNAC Network Hierarchy Tasks"
+    block:
+
+      - name: "Add New Site"
+        include_tasks: add_site.yml
+        with_items: "{{ dnac_config.design.network_hierarchy }}"
+        when:
+          - site_item.action == 'add'
+        loop_control:
+          loop_var: site_item
+
+      - name: "Delete Site"
+        include_tasks: delete_site.yml
+        with_items: "{{ dnac_config.design.network_hierarchy }}"
+        when:
+          - site_item.action == 'delete'
+        loop_control:
+          loop_var: site_item
+
+    when:
+      - dnac_config.design.network_hierarchy is defined

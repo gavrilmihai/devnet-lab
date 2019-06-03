@@ -1,0 +1,52 @@
+{
+    {% if discovery_item.ip_address_range.discovery_type.cdp is defined %}
+        "discoveryType": "CDP",
+        "ipAddressList": "{{ discovery_item.ip_address_range.discovery_type.cdp.ip_address }}",
+
+    {% elif discovery_item.ip_address_range.discovery_type.range is defined %}
+        "discoveryType": "Multi range",
+        "ipAddressList": "{%- for item in discovery_item.ip_address_range.discovery_type.range.from_to_ip_address -%}
+                                {{ item }}
+                                {%- if not loop.last -%}
+                                    ,
+                                {%- endif -%}
+                            {%- endfor -%}",
+
+    {% elif discovery_item.ip_address_range.discovery_type.lldp is defined %}
+        "discoveryType": "LLDP",
+        "ipAddressList": "{{ discovery_item.ip_address_range.discovery_type.lldp.ip_address }}",
+    {% endif %}
+
+    {% if discovery_item.ip_address_range.discovery_type.cdp is defined %}
+        "cdpLevel": "{{ discovery_item.ip_address_range.discovery_type.cdp.cdp_level }}",
+    {% else %}
+         "cdpLevel": "16",
+    {% endif %}
+
+    {% if discovery_item.ip_address_range.discovery_type.lldp is defined %}
+        "lldpLevel": "{{ discovery_item.ip_address_range.discovery_type.lldp.lldp_level }}",
+    {% else %}
+        "lldpLevel": "16",
+    {% endif %}
+
+    {% if globalCredentialIdList is defined %}
+        "globalCredentialIdList": {{ globalCredentialIdList }},
+    {% endif %}
+
+    {% if ipFilterList is defined %}
+        "ipFilterList": [],
+    {% endif %}
+
+    "name": "{{ discovery_item.discovery_name }}",
+    "retry": "3",
+    "timeout": "5",
+    "preferredMgmtIPMethod": "{{ discovery_item.ip_address_range.preferred_management_ip }}",
+
+    {% if (discovery_item.advanced.protocol_order.ssh == true) and (discovery_item.advanced.protocol_order.telnet == true ) %}
+        "protocolOrder": "ssh,telnet"
+    {% elif (discovery_item.advanced.protocol_order.ssh == false) and (discovery_item.advanced.protocol_order.telnet == true ) %}
+        "protocolOrder": "telnet"
+    {% elif (discovery_item.advanced.protocol_order.ssh == true) and (discovery_item.advanced.protocol_order.telnet == false ) %}
+        "protocolOrder": "ssh"
+    {% endif %}   
+}

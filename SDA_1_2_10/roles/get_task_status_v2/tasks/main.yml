@@ -1,0 +1,40 @@
+---
+# ------------------------------------------
+# file: SDA_1_2_8/roles/get_task_status_v2/tasks/main.yml
+# ver: 1.2.0
+# ansible ver: 2.7.8
+# python ver: 2.7.15
+# dna center ver: 1.2.8
+# dna center rest api ver: 1.0.2
+# author: Pradeep Singh (pradeesi@cisco.com)
+# description: This playbook will check the status of a submitted task.
+# DNAC Menu Path: None (API Only Option)
+# ------------------------------------------
+
+  - name: "Set default value to changed_flag_required variable if it is not defined"
+    set_fact:
+      changed_flag_required: true
+    when:
+      - changed_flag_required is not defined
+
+
+  - name: "Get DNA Center Task Status For - ( {{ dnac_task_name }} ), Task ID: ( {{ dnac_task_id }} )"
+    uri:
+      url: https://{{ dnac_credentials.ip_add }}/dna/intent/api/v1/task/{{ dnac_task_id }}
+      method: GET
+      validate_certs: no
+      headers:
+        X-Auth-Token: "{{ token.json.Token }}"
+        Content-Type: 'application/json'
+      status_code: 200
+    register: get_task_status_response
+    changed_when: (get_task_status_response.json.response.endTime is defined) and (get_task_status_response.json.response.isError == false) and (changed_flag_required == true)
+    until: (get_task_status_response.json.response.isError == true) or (get_task_status_response.json.response.endTime is defined)
+    retries: 60
+    delay: 2
+
+
+  - name: "Skip This Step If Task Completed Successfully (Fail, if not Successful) - ( {{ dnac_task_name }} ), Task ID: ( {{ dnac_task_id }} )"
+    fail:
+      msg: "OPERATION FAILED ON DNA Center, REST API RESPONSE:-    {{ get_task_status_response.json.response }}."
+    when: get_task_status_response.json.response.isError == true

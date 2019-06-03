@@ -1,0 +1,39 @@
+---
+# ------------------------------------------
+# file: SDA_1_2_8/roles/login/tasks/main.yml
+# ver: 1.2.0
+# ansible ver: 2.7.8
+# python ver: 2.7.15
+# dna center ver: 1.2.8
+# dna center rest api ver: 1.0.2
+# author: Pradeep Singh (pradeesi@cisco.com)
+# description: This playbook will login to DNA Center.
+# DNAC Menu Path: None (Landing Page)
+# ------------------------------------------
+
+  - debug:
+      var: dnac_credentials.ip_add
+      verbosity: 1
+
+  - debug:
+      var: dnac_credentials.user_name
+      verbosity: 1
+
+  - name: Login to Cisco DNA Center
+    uri:
+      url: https://{{ dnac_credentials.ip_add }}/dna/system/api/v1/auth/token
+      method: POST
+      user: "{{ dnac_credentials.user_name }}"
+      password: "{{ dnac_credentials.password }}"
+      force_basic_auth: yes
+      validate_certs: no
+      body_format: json
+      hearders:
+          Content-Type: "application/json"
+      return_content: yes
+      status_code: 200
+    register: token
+
+  - debug:
+      var: token.json.Token
+      verbosity: 1

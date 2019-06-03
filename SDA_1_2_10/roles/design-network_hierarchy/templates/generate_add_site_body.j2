@@ -1,0 +1,52 @@
+ {
+  {%- if site_item.site_type|lower == 'building' or site_item.site_type|lower == 'area' -%}
+    "groupTypeList":["SITE"],
+    "parentId":"{{ parent_site_id }}",
+    "childIds":[""],
+    "name":"{{ local_site_name }}",
+    "id":"",
+    "additionalInfo":[{
+                        "nameSpace":"Location",
+                        "attributes":{
+                                    {%- if site_item.site_type|lower == 'building' -%}
+                                        "latitude":"{{ site_item.latitude }}",
+                                        "longitude":"{{ site_item.longitude }}",
+                                        "address":"{{ site_item.address }}",
+                                        "country":"{{ site_item.country }}",
+                                    {%- endif -%}
+                                    
+                                    "type":"{{ site_item.site_type|lower }}"
+                                }
+                        }]
+
+  {%- elif site_item.site_type|lower == 'floor' -%}
+    "type":4,
+    "status":"INFORMATION",
+    "contact":"",
+    "groupInstanceUuid":"",
+    "buildingCount":0,
+    "floorCount":0,
+    "outdoorAreaCount":0,
+    "apCount":0,
+    "criticalRadioCount":0,
+    "wirelessClientsCount":0,
+    "maintainAspectRatio":false,
+    "geometry":{
+            "type":"DUMMYTYPE",
+            "height": "{{ site_item.height }}",
+            "width": "{{ site_item.width }}",
+            "length":"{{ site_item.length }}",
+            "offsetX":0,
+            "offsetY":0
+            },
+    "parentGroupUuid": "{{ parent_site_id }}",
+    "dot11aRadioCount":0,
+    "dot11bRadioCount":0,
+    "dot11gRadioCount":0,
+    "incomplete":false,
+    "floorTotalCount":0,
+    "basementTotalCount":0,
+    "rfModel":58058,
+    "name":"{{ local_site_name }}"
+  {%- endif -%}
+}

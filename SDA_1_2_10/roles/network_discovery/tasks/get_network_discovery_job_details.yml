@@ -1,0 +1,69 @@
+---
+# ------------------------------------------
+# file: SDA_1_2_8/roles/network_discovery/tasks/get_network_discovery_job_details.yml
+# ver: 1.2.0
+# ansible ver: 2.7.8
+# python ver: 2.7.15
+# dna center ver: 1.2.8
+# dna center rest api ver: 1.0.2
+# author: Pradeep Singh (pradeesi@cisco.com)
+# description: This task will pull network discovery tasks details.
+# DNAC Menu Path: None (Home Page Tools Section)
+# ------------------------------------------
+
+  - name: Get Discovery Details
+    block:
+      - name: Initialize Variables
+        set_fact:
+          current_nw_discovery_job_count: ''
+          nw_discovery_id: ''
+          nw_discovery_name: ''
+          nw_discovery_Condition: ''
+          nw_discovery_Status: ''
+
+      - name: Get Network Discovery Job Count
+        uri:
+          url: https://{{ dnac_credentials.ip_add }}/dna/intent/api/v1/discovery/count
+          method: GET
+          validate_certs: no
+          headers:
+            X-Auth-Token: "{{ token.json.Token }}"
+            Content-Type: 'application/json'
+          status_code: 200
+        register: get_discovery_count_response
+
+      - name: Parse Network Discovery Job Count
+        set_fact:
+          current_nw_discovery_job_count: "{{ get_discovery_count_response.json.response }}"
+
+      - name: Pull All Network Discovery Items
+        block:
+          - name: Get Discovery Job Details
+            uri:
+                url: https://{{ dnac_credentials.ip_add }}/dna/intent/api/v1/discovery/1/{{ current_nw_discovery_job_count|int }}
+                method: GET
+                validate_certs: no
+                headers:
+                  X-Auth-Token: "{{ token.json.Token }}"
+                  Content-Type: 'application/json'
+                status_code: 200
+            register: nw_discovery_job_details_response
+
+          - name: Parse Network Discovery Job Details on DNAC
+            set_fact:
+                discovery_job_dict: "{{ lookup('template', 'filter_nw_discovery_job_details.j2') }}"
+
+          - name: Parse Variables if data is available
+            block:
+              - name: Parse other vars from Network Discovery Job Dictionary
+                set_fact:
+                  nw_discovery_id: "{{ discovery_job_dict.id }}"
+                  nw_discovery_name: "{{ discovery_job_dict.name }}"
+                  nw_discovery_Condition: "{{ discovery_job_dict.discoveryCondition }}"
+                  nw_discovery_Status: "{{ discovery_job_dict.discoveryStatus }}"
+            when:
+              - discovery_job_dict.id is defined
+        when:
+          - current_nw_discovery_job_count != "0"
+    when:
+      - discovery_name is defined

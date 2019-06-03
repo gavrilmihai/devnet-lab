@@ -1,0 +1,70 @@
+---
+# ------------------------------------------
+# file: SDA_1_2_8/roles/design-network_hierarchy/tasks/delete_site.yml
+# ver: 1.2.0
+# ansible ver: 2.7.8
+# python ver: 2.7.15
+# dna center ver: 1.2.8
+# dna center rest api ver: 1.0.2
+# author: Pradeep Singh (pradeesi@cisco.com)
+# description: This task will delete a site.
+# DNAC Menu Path: Design --> Network Hierarchy
+# ------------------------------------------
+
+  - name: "Block: Delete Area"
+    block:
+
+      - name: "Check if Site already exist: {{ site_item.parent_name_hierarchy }}"
+        include_tasks: get_site_details.yml
+        vars:
+          site_full_path: "{{ site_item.parent_name_hierarchy }}"
+
+      - name: "Delete Site if it exists: {{ site_item.parent_name_hierarchy }}"
+        block:
+
+          - name: Delete if Site doesn't contain child site
+            block:
+
+              - name: "Select the URL for Site Type 'floor' or for Site Type 'area and building'"
+                set_fact:
+                  relative_post_url: "{{ '/api/v1/dna-maps-service/domains/' if site_item.site_type|lower == 'floor' else '/api/v1/group/'  }}"
+
+              - name: "Invoke Delete Site API"
+                uri:
+                  url: https://{{ dnac_credentials.ip_add }}{{ relative_post_url }}{{ site_id }}
+                  method: DELETE
+                  validate_certs: no
+                  headers:
+                    X-Auth-Token: "{{ token.json.Token }}"
+                    Content-Type: 'application/json'
+                  body_type: json
+                  status_code: 202
+                register: delete_site_response
+
+              - name: Check Delete Site Task Status
+                include_role:
+                  name: get_task_status_v2
+                vars:
+                  dnac_task_name: "Add Site: {{ site_item.parent_name_hierarchy }}"
+                  dnac_task_id: "{{ delete_site_response.json.response.taskId }}"
+            when:
+              - site_has_child == false
+
+          - name: "Fail: Site conains child groups"
+            fail:
+              msg: "Group ({{ site_item.parent_name_hierarchy }}) cannot be deleted as there are child groups. Please delete them first."
+            when:
+              - site_has_child == true
+
+        when:
+          - site_id != ''
+
+      - name: "Site doesn't exist?"
+        debug:
+          msg: "Site doesn't exist: {{ site_item.parent_name_hierarchy }}"
+          verbosity: 0
+        when:
+          - site_id == ''
+
+    when:
+      - site_item.parent_name_hierarchy is defined

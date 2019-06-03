@@ -1,0 +1,32 @@
+---
+# ------------------------------------------
+# file: SDA_1_2_8/roles/network_discovery/tasks/main.yml
+# ver: 1.2.0
+# ansible ver: 2.7.8
+# python ver: 2.7.15
+# dna center ver: 1.2.8
+# dna center rest api ver: 1.0.2
+# author: Pradeep Singh (pradeesi@cisco.com)
+# description: This role will manage network discovery tasks.
+# DNAC Menu Path: None (Home Page Tools Section)
+# ------------------------------------------
+
+  - name: "Manage DNAC Network Discovery Jobs"
+    block:
+
+      - name: "Add/Start New DNAC Network Discovery Jobs"
+        include_tasks: start_network_discovery_job.yml
+        with_items: "{{ dnac_discovery_setup }}"
+        when: discovery_item.action == 'add'
+        loop_control:
+          loop_var: discovery_item
+
+      - name: "Delete DNAC Network Discovery Jobs"
+        include_tasks: delete_network_discovery_job.yml
+        with_items: "{{ dnac_discovery_setup }}"
+        when: discovery_item.action == 'delete'
+        loop_control:
+          loop_var: discovery_item
+
+    when:
+      - dnac_discovery_setup is defined

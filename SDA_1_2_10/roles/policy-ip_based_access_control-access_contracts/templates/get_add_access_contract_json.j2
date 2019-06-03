@@ -1,0 +1,5 @@
+ [{"type":"contract",
+"name":"{{ access_contract.name }}",
+"description":"{{ access_contract.description }}",
+"clause":[{"access":"{{ access_contract.implicit_action | upper }}"}],
+"contractClassifier":[{%- for item in access_contract.rules -%}{"access":"{{ item.rule[0] | upper}}","scalableGroup":{"idRef": {%- for protocol in get_access_contract_protocols_response.json.response -%}{%- if protocol.name == item.rule[1] -%}"{{ protocol.id }}"{%- endif -%}{%- endfor -%} }}{%- if not loop.last -%},{%- endif -%}{%- endfor -%}]}]

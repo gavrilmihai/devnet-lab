@@ -1,0 +1,55 @@
+---
+# ------------------------------------------
+# file: SDA_1_2_8/roles/policy-virtual_networks/tasks/modify_virtual_network.yml
+# ver: 1.2.0
+# ansible ver: 2.7.8
+# python ver: 2.7.15
+# dna center ver: 1.2.8
+# dna center rest api ver: 1.0.2
+# author: Pradeep Singh (pradeesi@cisco.com)
+# description: This playbook will modify a virtual network.
+# DNAC Menu Path: Policy --> Virtual Network
+# ------------------------------------------
+
+  - name: "Get Virtual Network Details: {{ virtual_network.name }}"
+    include_tasks: get_virtual_network_details.yml
+
+
+  - name: "Modify Virtual Network: {{ virtual_network.name }}"
+    block:
+
+      - name: Parse Virtual instanceVersion and resourceVersion
+        set_fact:
+          virtual_network_instanceVersion: "{{ get_virtual_nw_response.json.response[0].instanceVersion }}"
+          virtual_network_resourceVersion: "{{ get_virtual_nw_response.json.response[0].resourceVersion }}"
+
+      - name: Fetch Scalable Group Details
+        include_tasks: get_scalable_groups.yml
+        when:
+          - virtual_network.scalable_groups is defined
+
+      - name: Submit Modify Virtual Network Task
+        uri:
+          url: https://{{ dnac_credentials.ip_add }}/api/v2/data/customer-facing-service/virtualnetworkcontext/
+          method: PUT
+          validate_certs: no
+          headers:
+            X-Auth-Token: "{{ token.json.Token }}"
+            Content-Type: 'application/json'
+          body_type: json
+          body: "{{ lookup('template', 'get_modify_virtual_network_json.j2') }}"
+          status_code: 202
+        register: response
+
+      - name: Parse TaskID for Modify Virtual Network Task
+        set_fact:
+          dnac_task_name: "Modify Virtual Network: {{ virtual_network.name }}"
+          dnac_task_id: "{{ response.json.response.taskId }}"
+
+      - name: Check Modify Virtual Network Task Status
+        include_role:
+          name: get_task_status
+
+    when:
+      - virtual_network_id != '\n'
+      - virtual_network.action == 'modify'

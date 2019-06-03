@@ -1,0 +1,75 @@
+---
+# ------------------------------------------
+# file: main.yml
+# ver: 1.2.0
+# ansible ver: 2.7.8
+# python ver: 2.7.15
+# dna center ver: 1.2.8
+# dna center rest api ver: 1.0.2
+# author: Pradeep Singh (pradeesi@cisco.com)
+# description: Primary playbook to configure DNA/SDA.
+# ------------------------------------------
+
+- name: Manage DNA Center Configuration
+  hosts: localhost
+  gather_facts: no
+  connection: local
+
+  tasks:
+    - name: Include DNA Center and Infra Login Credentials
+      include_vars:
+        file: dnac_infra_credentials.yml
+
+    - name: Include DNA Center Configuraions
+      include_vars:
+        file: dnac_config.yml
+
+    - name: Login to DNA Center
+      include_role:
+        name: login
+
+
+
+
+    - name: Manage IP Address Pools
+      include_role:
+          name: design-network_settings-ip_address_pools
+      when: dnac_config.design.network_settings.ip_address_pools is defined
+
+
+#    - name: Manage Global Network Settings
+#      include_role:
+#          name: design-network_settings-network
+#      when: dnac_config.design.network_settings.network is defined
+
+
+#    - name: Manage Network Hierarchy
+#      include_role:
+#          name: design-network_hierarchy
+#      when: dnac_config.design.network_hierarchy is defined
+
+
+#    - name: Manage Device Credentials
+#      include_role:
+#          name: design-network_settings-device_credentials
+#      when: infra_credentials is defined
+
+#    - name: Manage DNA Discovery Jobs
+#      include_role:
+#          name: network_discovery
+#      when: dnac_discovery_setup is defined
+
+
+#    - name: Configure DNA Center Policies
+#      block:
+#        - name: Manage Virtual Netwroks Config on DNA Center
+#          include_role:
+#            name: virtual_networks
+#          when: dnac_config.policy.virtual_networks is defined
+
+#        - name: Manage Access Contracts Config on DNA Center
+#          include_role:
+#            name: access_contracts
+#          when: dnac_config.policy.ip_based_access_control is defined
+#      when:
+#        - dnac_config.policy is defined

@@ -1,0 +1,25 @@
+---
+# ------------------------------------------
+# file: SDA_1_2_8/roles/policy-virtual_networks/tasks/get_scalable_groups.yml
+# ver: 1.2.0
+# ansible ver: 2.7.8
+# python ver: 2.7.15
+# dna center ver: 1.2.8
+# dna center rest api ver: 1.0.2
+# author: Pradeep Singh (pradeesi@cisco.com)
+# description: This playbook will pull scalable group details.
+# DNAC Menu Path: Policy --> Virtual Network
+# ------------------------------------------
+
+  - name: Get Scalable Groups
+    uri:
+      url: https://{{ dnac_credentials.ip_add }}/api/v2/data/customer-facing-service/scalablegroup?scalableGroupType=USER_DEVICE&name={{ lookup('template', 'get_scalable_group_csv.j2') | trim }}&attributes=id,name,scalableGroupType,state
+      method: GET
+      validate_certs: no
+      headers:
+        X-Auth-Token: "{{ token.json.Token }}"
+        Content-Type: 'application/json'
+      status_code: 200
+    register: get_scalable_groups_response
+    when:
+      - virtual_network.scalable_groups is defined

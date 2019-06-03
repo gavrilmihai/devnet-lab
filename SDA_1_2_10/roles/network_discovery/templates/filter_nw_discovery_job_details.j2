@@ -1,0 +1,5 @@
+{%- for item in nw_discovery_job_details_response.json.response -%}
+    {%- if item.name == discovery_name -%}
+        {{ item }}
+    {%- endif -%}   
+{%- endfor -%}

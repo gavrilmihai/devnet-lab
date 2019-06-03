@@ -1,0 +1,3 @@
+{%- for item in virtual_network.scalable_groups -%}
+    {{ item }}{%- if not loop.last -%},{%- endif -%}
+{%- endfor -%}

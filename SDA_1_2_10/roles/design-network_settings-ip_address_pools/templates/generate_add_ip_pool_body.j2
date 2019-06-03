@@ -1,0 +1,8 @@
+{
+	"ipPoolCidr": "{{ ip_pool_item.ip_pool_cidr }}",
+	"ipPoolName": "{{ ip_pool_item.name }}",
+	"gateways": {{ ip_pool_item.gateways | list}},
+	"dhcpServerIps": {{ ip_pool_item.dhcp_server_ips | list}},
+	"dnsServerIps": {{ ip_pool_item.dns_server_ips | list}},
+	"overlapping": {{ ip_pool_item.overlapping }}
+}

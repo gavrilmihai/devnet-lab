@@ -1,0 +1,257 @@
+[
+	{%- if network_properties_item.dhcp_server is defined  -%}
+		{
+			"instanceType": "ip",
+			"instanceUuid": "{{ get_common_setting_response.json.response | selectattr( 'key' , 'equalto', 'dhcp.server' )| map(attribute='instanceUuid') | join(',') }}",
+			"namespace": "{{ get_common_setting_response.json.response | selectattr( 'key' , 'equalto', 'dhcp.server' )| map(attribute='namespace') | join(',') }}",
+			"type": "ip.address",
+			"key": "dhcp.server",
+			"version": "{{ get_common_setting_response.json.response | selectattr( 'key' , 'equalto', 'dhcp.server' )| map(attribute='version') | join(',') }}",
+			"value": {{ network_properties_item.dhcp_server }},
+			"groupUuid": "{{ get_common_setting_response.json.response | selectattr( 'key' , 'equalto', 'dhcp.server' )| map(attribute='groupUuid') | join(',') }}",
+			"inheritedGroupUuid": "{{ get_common_setting_response.json.response | selectattr( 'key' , 'equalto', 'dhcp.server' )| map(attribute='inheritedGroupUuid') | join(',') }}",
+			"inheritedGroupName": "{{ get_common_setting_response.json.response | selectattr( 'key' , 'equalto', 'dhcp.server' )| map(attribute='inheritedGroupName') | join(',') }}"
+		},
+	{%- endif -%}   
+
+	{%- if network_properties_item.dns_server is defined  -%}
+		{
+			"instanceType": "dns",
+			"instanceUuid": "{{ get_common_setting_response.json.response | selectattr( 'key' , 'equalto', 'dns.server' )| map(attribute='instanceUuid') | join(',') }}",
+			"namespace": "{{ get_common_setting_response.json.response | selectattr( 'key' , 'equalto', 'dns.server' )| map(attribute='namespace') | join(',') }}",
+			"type": "dns.setting",
+			"key": "dns.server",
+			"version": "{{ get_common_setting_response.json.response | selectattr( 'key' , 'equalto', 'dns.server' )| map(attribute='version') | join(',') }}",
+			"value": [
+				{
+					"domainName": "{{ network_properties_item.dns_server.domain_name }}",
+					"primaryIpAddress": "{{ network_properties_item.dns_server.primary_ip }}",
+					"secondaryIpAddress": "{{ network_properties_item.dns_server.secondary_ip }}"
+				}
+			],
+			"groupUuid": "{{ get_common_setting_response.json.response | selectattr( 'key' , 'equalto', 'dns.server' )| map(attribute='groupUuid') | join(',') }}",
+			"inheritedGroupUuid": "{{ get_common_setting_response.json.response | selectattr( 'key' , 'equalto', 'dns.server' )| map(attribute='inheritedGroupUuid') | join(',') }}",
+			"inheritedGroupName": "{{ get_common_setting_response.json.response | selectattr( 'key' , 'equalto', 'dns.server' )| map(attribute='inheritedGroupName') | join(',') }}"
+		},
+	{%- endif -%}
+
+	{%- if network_properties_item.syslog_server is defined  -%}
+		{
+			"instanceType": "ip",
+			"instanceUuid": "{{ get_common_setting_response.json.response | selectattr( 'key' , 'equalto', 'syslog.server' )| map(attribute='instanceUuid') | join(',') }}",
+			"namespace": "{{ get_common_setting_response.json.response | selectattr( 'key' , 'equalto', 'syslog.server' )| map(attribute='namespace') | join(',') }}",
+			"type": "ip.address",
+			"key": "syslog.server",
+			"version": "{{ get_common_setting_response.json.response | selectattr( 'key' , 'equalto', 'syslog.server' )| map(attribute='version') | join(',') }}",
+			"value": {{ network_properties_item.syslog_server }},
+			"groupUuid": "{{ get_common_setting_response.json.response | selectattr( 'key' , 'equalto', 'syslog.server' )| map(attribute='groupUuid') | join(',') }}",
+			"inheritedGroupUuid": "{{ get_common_setting_response.json.response | selectattr( 'key' , 'equalto', 'syslog.server' )| map(attribute='inheritedGroupUuid') | join(',') }}",
+			"inheritedGroupName": "{{ get_common_setting_response.json.response | selectattr( 'key' , 'equalto', 'syslog.server' )| map(attribute='inheritedGroupName') | join(',') }}"
+		},
+	{%- endif -%}
+
+	{%- if network_properties_item.snmp_server is defined  -%}
+		{
+			"instanceType": "ip",
+			"instanceUuid": "{{ get_common_setting_response.json.response | selectattr( 'key' , 'equalto', 'snmp.trap.receiver' )| map(attribute='instanceUuid') | join(',') }}",
+			"namespace": "{{ get_common_setting_response.json.response | selectattr( 'key' , 'equalto', 'snmp.trap.receiver' )| map(attribute='namespace') | join(',') }}",
+			"type": "ip.address",
+			"key": "snmp.trap.receiver",
+			"version": "{{ get_common_setting_response.json.response | selectattr( 'key' , 'equalto', 'snmp.trap.receiver' )| map(attribute='version') | join(',') }}",
+			"value": {{ network_properties_item.snmp_server }},
+			"groupUuid": "{{ get_common_setting_response.json.response | selectattr( 'key' , 'equalto', 'snmp.trap.receiver' )| map(attribute='groupUuid') | join(',') }}",
+			"inheritedGroupUuid": "{{ get_common_setting_response.json.response | selectattr( 'key' , 'equalto', 'snmp.trap.receiver' )| map(attribute='inheritedGroupUuid') | join(',') }}",
+			"inheritedGroupName": "{{ get_common_setting_response.json.response | selectattr( 'key' , 'equalto', 'snmp.trap.receiver' )| map(attribute='inheritedGroupName') | join(',') }}"
+		},
+	{%- endif -%}
+
+	{%- if network_properties_item.time_zone is defined  -%}
+	{
+		"instanceType": "timezone",
+		"instanceUuid": "{{ get_common_setting_response.json.response | selectattr( 'key' , 'equalto', 'timezone.site' )| map(attribute='instanceUuid') | join(',') }}",
+		"namespace": "{{ get_common_setting_response.json.response | selectattr( 'key' , 'equalto', 'timezone.site' )| map(attribute='namespace') | join(',') }}",
+		"type": "timezone.setting",
+		"key": "timezone.site",
+		"version": "{{ get_common_setting_response.json.response | selectattr( 'key' , 'equalto', 'timezone.site' )| map(attribute='version') | join(',') }}",
+		"value": [
+			"{{ network_properties_item.time_zone }}"
+		],
+		"groupUuid": "{{ get_common_setting_response.json.response | selectattr( 'key' , 'equalto', 'timezone.site' )| map(attribute='groupUuid') | join(',') }}",
+		"inheritedGroupUuid": "{{ get_common_setting_response.json.response | selectattr( 'key' , 'equalto', 'timezone.site' )| map(attribute='inheritedGroupUuid') | join(',') }}",
+		"inheritedGroupName": "{{ get_common_setting_response.json.response | selectattr( 'key' , 'equalto', 'timezone.site' )| map(attribute='inheritedGroupName') | join(',') }}"
+	},
+	{%- endif -%}
+
+	{%- if network_properties_item.message_of_the_day is defined  -%}
+		{
+			"instanceType": "banner",
+			"instanceUuid": "{{ get_common_setting_response.json.response | selectattr( 'key' , 'equalto', 'device.banner' )| map(attribute='instanceUuid') | join(',') }}",
+			"namespace": "{{ get_common_setting_response.json.response | selectattr( 'key' , 'equalto', 'device.banner' )| map(attribute='namespace') | join(',') }}",
+			"type": "banner.setting", 
+			"key": "device.banner",
+			"version": "{{ get_common_setting_response.json.response | selectattr( 'key' , 'equalto', 'device.banner' )| map(attribute='version') | join(',') }}",
+			"value": [
+				{
+					"bannerMessage": "{{ network_properties_item.message_of_the_day.message_of_the_day }}",
+					"retainExistingBanner": {{ network_properties_item.message_of_the_day.retain_existing_mod }}
+				}
+			],
+			"groupUuid": "{{ get_common_setting_response.json.response | selectattr( 'key' , 'equalto', 'device.banner' )| map(attribute='groupUuid') | join(',') }}",
+			"inheritedGroupUuid": "{{ get_common_setting_response.json.response | selectattr( 'key' , 'equalto', 'device.banner' )| map(attribute='inheritedGroupUuid') | join(',') }}",
+			"inheritedGroupName": "{{ get_common_setting_response.json.response | selectattr( 'key' , 'equalto', 'device.banner' )| map(attribute='inheritedGroupName') | join(',') }}"
+		},
+	{%- endif -%}
+
+	{%- if network_properties_item.ntp_server is defined  -%}
+		{
+			"instanceType": "ip",
+			"instanceUuid": "{{ get_common_setting_response.json.response | selectattr( 'key' , 'equalto', 'ntp.server' )| map(attribute='instanceUuid') | join(',') }}",
+			"namespace": "{{ get_common_setting_response.json.response | selectattr( 'key' , 'equalto', 'ntp.server' )| map(attribute='namespace') | join(',') }}",
+			"type": "ip.address",
+			"key": "ntp.server",
+			"version": "{{ get_common_setting_response.json.response | selectattr( 'key' , 'equalto', 'ntp.server' )| map(attribute='version') | join(',') }}",
+			"value": {{ network_properties_item.ntp_server }},
+			"groupUuid": "{{ get_common_setting_response.json.response | selectattr( 'key' , 'equalto', 'ntp.server' )| map(attribute='groupUuid') | join(',') }}",
+			"inheritedGroupUuid": "{{ get_common_setting_response.json.response | selectattr( 'key' , 'equalto', 'ntp.server' )| map(attribute='inheritedGroupUuid') | join(',') }}",
+			"inheritedGroupName": "{{ get_common_setting_response.json.response | selectattr( 'key' , 'equalto', 'ntp.server' )| map(attribute='inheritedGroupName') | join(',') }}"
+		},
+	{%- endif -%}
+
+	{%- if network_properties_item.netflow_collector_server is defined  -%}
+		{
+			"instanceType": "netflow",
+			"instanceUuid": "{{ get_common_setting_response.json.response | selectattr( 'key' , 'equalto', 'netflow.collector' )| map(attribute='instanceUuid') | join(',') }}",
+			"namespace": "{{ get_common_setting_response.json.response | selectattr( 'key' , 'equalto', 'netflow.collector' )| map(attribute='namespace') | join(',') }}",
+			"type": "netflow.setting",
+			"key": "netflow.collector",
+			"version": "{{ get_common_setting_response.json.response | selectattr( 'key' , 'equalto', 'netflow.collector' )| map(attribute='version') | join(',') }}",
+			"value": [
+				{
+					"ipAddress": "{{ network_properties_item.netflow_collector_server.ip_address }}",
+					"port": "{{ network_properties_item.netflow_collector_server.port }}"
+				}
+			],
+			"groupUuid": "{{ get_common_setting_response.json.response | selectattr( 'key' , 'equalto', 'netflow.collector' )| map(attribute='groupUuid') | join(',') }}",
+			"inheritedGroupUuid": "{{ get_common_setting_response.json.response | selectattr( 'key' , 'equalto', 'netflow.collector' )| map(attribute='inheritedGroupUuid') | join(',') }}",
+			"inheritedGroupName": "{{ get_common_setting_response.json.response | selectattr( 'key' , 'equalto', 'netflow.collector' )| map(attribute='inheritedGroupName') | join(',') }}"
+		},
+	{%- endif -%}
+
+	{%- if network_properties_item.aaa_server is defined  -%}
+		{
+			"instanceType": "pan",
+			"instanceUuid": "{{ get_common_setting_response.json.response | selectattr( 'key' , 'equalto', 'aaa.server.pan.network' )| map(attribute='instanceUuid') | join(',') }}",
+			"namespace": "{{ get_common_setting_response.json.response | selectattr( 'key' , 'equalto', 'aaa.server.pan.network' )| map(attribute='namespace') | join(',') }}",
+			"type": "pan.setting",
+			"key": "aaa.server.pan.network",
+			"version": "{{ get_common_setting_response.json.response | selectattr( 'key' , 'equalto', 'aaa.server.pan.network' )| map(attribute='version') | join(',') }}",
+			"value": ["None"],
+			"groupUuid": "{{ get_common_setting_response.json.response | selectattr( 'key' , 'equalto', 'aaa.server.pan.network' )| map(attribute='groupUuid') | join(',') }}",
+			"inheritedGroupUuid": "{{ get_common_setting_response.json.response | selectattr( 'key' , 'equalto', 'aaa.server.pan.network' )| map(attribute='inheritedGroupUuid') | join(',') }}",
+			"inheritedGroupName": "{{ get_common_setting_response.json.response | selectattr( 'key' , 'equalto', 'aaa.server.pan.network' )| map(attribute='inheritedGroupName') | join(',') }}"
+		},
+		{
+			"instanceType": "pan",
+			"instanceUuid": "{{ get_common_setting_response.json.response | selectattr( 'key' , 'equalto', 'aaa.server.pan.endpoint' )| map(attribute='instanceUuid') | join(',') }}",
+			"namespace": "{{ get_common_setting_response.json.response | selectattr( 'key' , 'equalto', 'aaa.server.pan.endpoint' )| map(attribute='namespace') | join(',') }}",
+			"type": "pan.setting",
+			"key": "aaa.server.pan.endpoint",
+			"version": "{{ get_common_setting_response.json.response | selectattr( 'key' , 'equalto', 'aaa.server.pan.endpoint' )| map(attribute='version') | join(',') }}",
+			"value": [
+				"None"
+			],
+			"groupUuid": "{{ get_common_setting_response.json.response | selectattr( 'key' , 'equalto', 'aaa.server.pan.endpoint' )| map(attribute='groupUuid') | join(',') }}",
+			"inheritedGroupUuid": "{{ get_common_setting_response.json.response | selectattr( 'key' , 'equalto', 'aaa.server.pan.endpoint' )| map(attribute='inheritedGroupUuid') | join(',') }}",
+			"inheritedGroupName": "{{ get_common_setting_response.json.response | selectattr( 'key' , 'equalto', 'aaa.server.pan.endpoint' )| map(attribute='inheritedGroupName') | join(',') }}"
+		},
+		{
+			"instanceType": "aaa",
+			"instanceUuid": "d94549ac-3245-49f2-b17a-14d0b576a524",
+			"namespace": "global",
+			"type": "aaa.setting",
+			"key": "aaa.endpoint.server.1",
+			"version": 3,
+			"value": [
+				{
+					"ipAddress": "",
+					"sharedSecret": "",
+					"protocol": ""
+				}
+			],
+			"groupUuid": "-1",
+			"inheritedGroupUuid": "",
+			"inheritedGroupName": ""
+		},
+		{
+			"instanceType": "aaa",
+			"instanceUuid": "ec327c3e-2a11-4319-87a6-70ddbe30f227",
+			"namespace": "global",
+			"type": "aaa.setting",
+			"key": "aaa.endpoint.server.2",
+			"version": 3,
+			"value": [
+				{
+					"ipAddress": "",
+					"sharedSecret": "",
+					"protocol": ""
+				}
+			],
+			"groupUuid": "-1",
+			"inheritedGroupUuid": "",
+			"inheritedGroupName": ""
+		},
+		{
+			"instanceType": "aaa",
+			"instanceUuid": "41f0ac32-b91a-4a78-bac4-0867f499b191",
+			"namespace": "global",
+			"type": "aaa.setting",
+			"key": "aaa.network.server.1",
+			"version": 3,
+			"value": [
+				{
+					"ipAddress": "",
+					"sharedSecret": "",
+					"protocol": ""
+				}
+			],
+			"groupUuid": "-1",
+			"inheritedGroupUuid": "",
+			"inheritedGroupName": ""
+		},
+		{
+			"instanceType": "aaa",
+			"instanceUuid": "e8af4e97-e8a2-40a3-a381-f9792d1862cf",
+			"namespace": "global",
+			"type": "aaa.setting",
+			"key": "aaa.network.server.2",
+			"version": 3,
+			"value": [
+				{
+					"ipAddress": "",
+					"sharedSecret": "",
+					"protocol": ""
+				}
+			],
+			"groupUuid": "-1",
+			"inheritedGroupUuid": "",
+			"inheritedGroupName": ""
+		},
+		{
+			"instanceType": "interface",
+			"instanceUuid": "7789d326-85d2-416d-91f0-91e1fe078dad",
+			"namespace": "global",
+			"type": "interface.setting",
+			"key": "interface.info",
+			"version": 3,
+			"value": [
+				{
+					"interfaceName": "management",
+					"vlanId": 0
+				}
+			],
+			"groupUuid": "-1",
+			"inheritedGroupUuid": "",
+			"inheritedGroupName": ""
+		}
+	{%- endif -%}
+]

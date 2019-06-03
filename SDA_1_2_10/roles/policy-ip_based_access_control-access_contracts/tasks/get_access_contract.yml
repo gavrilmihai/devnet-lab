@@ -1,0 +1,34 @@
+---
+# ------------------------------------------
+# file: SDA_1_2_8/roles/policy-ip_based_access_control-access_contracts/tasks/get_access_contract.yml
+# ver: 1.2.0
+# ansible ver: 2.7.8
+# python ver: 2.7.15
+# dna center ver: 1.2.8
+# dna center rest api ver: 1.0.2
+# author: Pradeep Singh (pradeesi@cisco.com)
+# description: This playbook will pull the access contract details.
+# DNAC Menu Path: Policy --> IP Based Access Control --> Access Contract
+# ------------------------------------------
+
+  - name: Get Access Contract
+    uri:
+      url: https://{{ dnac_credentials.ip_add }}/api/v2/data/customer-facing-service/contract/access/?name={{ access_contract.name }}
+      method: GET
+      validate_certs: no
+      headers:
+        X-Auth-Token: "{{ token.json.Token }}"
+        Content-Type: 'application/json'
+      status_code: 200
+    register: get_access_contract_response
+
+
+  - name: Parse Access Contract ID
+    set_fact:
+      access_contract_id: "{{ lookup('template', 'get_access_contract_id.j2') }}"
+
+
+  - name: "Debug - Access Contract ID"
+    debug:
+      var: access_contract_id
+      verbosity: 1

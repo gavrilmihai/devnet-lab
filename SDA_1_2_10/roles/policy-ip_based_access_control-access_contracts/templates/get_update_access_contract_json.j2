@@ -1,0 +1,12 @@
+ [{
+ "id": "{{ access_contract_id | trim }}",
+ "instanceVersion": "{{ access_contract_instanceVersion }}",
+ "description": {%- if access_contract.description is defined -%}"{{ access_contract.description }}"{%- else -%}"{{ access_contract_description }}"{%- endif -%},
+ "name": "{{ access_contract_name }}",
+ "namespace": "{{ access_contract_namespace }}",
+ "qualifier": "{{ access_contract_qualifier }}",
+ "resourceVersion": "{{ access_contract_resourceVersion }}",
+ "type": "{{ access_contract_type }}",
+ "clause": [{"access":{%- if access_contract.implicit_action is defined -%}"{{ access_contract.implicit_action | upper }}"{%- else -%}"{{ access_contract_clause | upper }}"{%- endif -%}}],
+ "contractClassifier":[{%- for item in access_contract.rules -%}{"access":"{{ item.rule[0] | upper}}","scalableGroup":{"idRef": {%- for protocol in get_access_contract_protocols_response.json.response -%}{%- if protocol.name == item.rule[1] -%}"{{ protocol.id }}"{%- endif -%}{%- endfor -%} }}{%- if not loop.last -%},{%- endif -%}{%- endfor -%}]
+}]

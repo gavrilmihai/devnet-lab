@@ -1,0 +1,5 @@
+{%- for item in get_access_contract_response.json.response -%}
+  {%- if item.name == access_contract.name -%}
+    {{ item.id }}
+  {%- endif -%}
+{%- endfor -%}

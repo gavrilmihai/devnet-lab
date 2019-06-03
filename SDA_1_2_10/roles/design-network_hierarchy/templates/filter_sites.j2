@@ -1,0 +1,5 @@
+{%- for item in get_site_details_response.json.response -%}
+    {%- if item.groupNameHierarchy|upper == site_full_path|upper -%}
+        {{ item }}
+    {%- endif -%}   
+{%- endfor -%}

@@ -1,0 +1,46 @@
+---
+# ------------------------------------------
+# file: SDA_1_2_8/roles/design-network_settings-network/tasks/add_network_common_settings.yml
+# ver: 1.2.0
+# ansible ver: 2.7.8
+# python ver: 2.7.15
+# dna center ver: 1.2.8
+# dna center rest api ver: 1.0.2
+# author: Pradeep Singh (pradeesi@cisco.com)
+# description: This task will add common network settings.
+# DNAC Menu Path: Design --> Network Settings --> Network
+# ------------------------------------------
+
+  - name: "Add Common Settings"
+    block:
+
+      - name: "Get site ID"
+        include_tasks: get_site_id.yml
+        vars:
+          site_full_path: "{{ network_properties_item.parent_name_hierarchy }}"
+
+      - name: "Get Site - Common Settings"
+        include_tasks: get_network_common_settings.yml
+
+      - name: "Invoke Add Common Settings API for: {{ network_properties_item.parent_name_hierarchy }}"
+        uri:
+          url: https://{{ dnac_credentials.ip_add }}/api/v1/commonsetting/global/{{ site_id }}
+          method: POST
+          validate_certs: no
+          headers:
+            X-Auth-Token: "{{ token.json.Token }}"
+            Content-Type: 'application/json'
+          body_type: json
+          body: "{{ lookup('template', 'generate_add_common_settings.j2') | to_json }}"
+          status_code: 202
+        register: add_common_settings_response
+
+      - name: Check Add Common Settings Task Status
+        include_role:
+          name: get_task_status_v2
+        vars:
+          dnac_task_name: "Add Common Settings: {{ network_properties_item.parent_name_hierarchy }}"
+          dnac_task_id: "{{ add_common_settings_response.json.response.taskId }}"
+
+    when:
+      - network_properties_item.parent_name_hierarchy is defined

@@ -1,0 +1,9 @@
+ [{
+ "name":"{{ virtual_network.name }}",
+ "virtualNetworkContextType":"ISOLATED",
+ "scalableGroup":[
+    {%- for item in get_scalable_groups_response.json.response -%}
+        {"idRef":"{{ item.id }}"}{%- if not loop.last -%},{%- endif -%}
+    {%- endfor -%}
+    ]
+  }]

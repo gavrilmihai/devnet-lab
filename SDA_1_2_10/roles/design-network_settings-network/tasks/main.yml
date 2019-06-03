@@ -1,0 +1,26 @@
+---
+# ------------------------------------------
+# file: SDA_1_2_8/roles/design-network_settings-network/tasks/main.yml
+# ver: 1.2.0
+# ansible ver: 2.7.8
+# python ver: 2.7.15
+# dna center ver: 1.2.8
+# dna center rest api ver: 1.0.2
+# author: Pradeep Singh (pradeesi@cisco.com)
+# description: This role will create network settings
+# DNAC Menu Path: Design --> Network Settings --> Network
+# ------------------------------------------
+
+#
+# TODO: Implement logic to add AAA Server
+#
+
+  - name: "Manage Network Properties"
+    block:
+      - name: Manage Network Properties
+        include_tasks: add_network_common_settings.yml
+        with_items: "{{ dnac_config.design.network_settings.network }}"
+        loop_control:
+          loop_var: network_properties_item
+    when:
+      - dnac_config.design.network_settings.network is defined

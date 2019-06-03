@@ -1,0 +1,61 @@
+---
+# ------------------------------------------
+# file: SDA_1_2_8/roles/network_discovery/tasks/start_network_discovery_job.yml
+# ver: 1.2.0
+# ansible ver: 2.7.8
+# python ver: 2.7.15
+# dna center ver: 1.2.8
+# dna center rest api ver: 1.0.2
+# author: Pradeep Singh (pradeesi@cisco.com)
+# description: This task will start a new network discovery job.
+# DNAC Menu Path: None (Home Page Tools Section)
+# ------------------------------------------
+
+  - name: "Network Discovery Job: {{ discovery_item.discovery_name }}"
+    block:
+
+      - name: Check if the Network Discovery Job Already Exists?
+        include_tasks: get_network_discovery_job_details.yml
+        vars:
+          discovery_name: "{{ discovery_item.discovery_name }}"
+
+      - name: "Prepare Network Discovery Job Settings: {{ discovery_item.discovery_name }}"
+        block:
+
+          - name: "Prepare Global Credentials ID list"
+            include_tasks: prepare_global_credentials_id_list.yml
+            when: discovery_item.credentials is defined
+
+          - name: "Start Network Discovery Process: {{ discovery_item.discovery_name }}"
+            uri:
+              url: https://{{ dnac_credentials.ip_add }}/dna/intent/api/v1/discovery
+              method: POST
+              validate_certs: no
+              headers:
+                X-Auth-Token: "{{ token.json.Token }}"
+                Content-Type: 'application/json'
+              body_type: json
+              body: "{{ lookup('template', 'generate_start_discovery_body.j2') | to_json }}"
+              status_code: 202
+            register: start_discovery_response
+
+          - name: "Check Status of Create Network Discovery Task: {{ discovery_item.discovery_name }}"
+            include_role:
+              name: get_task_status_v2
+            vars:
+                dnac_task_name: "Create Discovery: {{ discovery_item.discovery_name }}"
+                dnac_task_id: "{{ start_discovery_response.json.response.taskId }}"
+                changed_flag_required: true
+
+        when:
+          - nw_discovery_id == ''
+
+      - name: "Discovery Job Already exists?"
+        debug:
+          msg: "Network Discovery Job Already Exists with Name: {{ discovery_item.discovery_name }}"
+          verbosity: 0
+        when:
+          - nw_discovery_id != ''
+
+    when:
+      - discovery_item.discovery_name is defined

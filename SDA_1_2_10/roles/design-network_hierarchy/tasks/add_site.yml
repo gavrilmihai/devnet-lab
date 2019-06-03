@@ -1,0 +1,93 @@
+---
+# ------------------------------------------
+# file: SDA_1_2_8/roles/design-network_hierarchy/tasks/add_site.yml
+# ver: 1.2.0
+# ansible ver: 2.7.8
+# python ver: 2.7.15
+# dna center ver: 1.2.8
+# dna center rest api ver: 1.0.2
+# author: Pradeep Singh (pradeesi@cisco.com)
+# description: This task will create a new site.
+# DNAC Menu Path: Design --> Network Hierarchy
+# ------------------------------------------
+
+  - name: "Block: Add Area"
+    block:
+
+      - name: "Check if Site already exist: {{ site_item.parent_name_hierarchy }}"
+        include_tasks: get_site_details.yml
+        vars:
+          site_full_path: "{{ site_item.parent_name_hierarchy }}"
+
+      - name: "Set local variables"
+        set_fact:
+          local_site_id: "{{ site_id }}"
+          local_site_name: "{{  site_item.parent_name_hierarchy.split('/')[-1] }}"
+
+      - name: "Add Site if it doesn't exist: {{ site_item.parent_name_hierarchy }}"
+        block:
+
+          - name: "Parent Site parent_name_hierarchy Value"
+            set_fact:
+              parent_site_full_path: "{{  site_item.parent_name_hierarchy.split('/')[:-1] | join('/')}}"
+
+          - name: "Check if the Parent Site exist for the Site: {{ site_item.parent_name_hierarchy }}"
+            include_tasks: get_site_details.yml
+            vars:
+              site_full_path: "{{ parent_site_full_path }}"
+
+          - name: "Set Parent Site Variables"
+            set_fact:
+              parent_site_id: "{{ site_id }}"
+              parent_site_name: "{{ site_name }}"
+
+          - name: "Select the URL for Site Type 'floor' or for Site Type 'area and building'"
+            set_fact:
+              relative_post_url: "{{ '/api/v1/dna-maps-service/domains' if site_item.site_type|lower == 'floor' else '/api/v1/group/'  }}"
+
+          - name: "Continue if Parent Site exists: {{ parent_site_full_path }}"
+            block:
+
+            - name: "Invoke Add Site API"
+              uri:
+                url: https://{{ dnac_credentials.ip_add }}{{ relative_post_url }}
+                method: POST
+                validate_certs: no
+                headers:
+                  X-Auth-Token: "{{ token.json.Token }}"
+                  Content-Type: 'application/json'
+                body_type: json
+                body: "{{ lookup('template', 'generate_add_site_body.j2') }}"
+                status_code: 202
+              register: add_site_response
+
+            - name: Check Add Site Task Status
+              include_role:
+                name: get_task_status_v2
+              vars:
+                dnac_task_name: "Add Site: {{ site_item.parent_name_hierarchy }}"
+                dnac_task_id: "{{ add_site_response.json.response.taskId }}"
+
+            when:
+              - parent_site_id != ''
+
+
+          - name: "Fail if the Parent Site doesn't exist: {{ parent_site_name }} for Site: {{ site_item.parent_name_hierarchy }}"
+            block:
+              - fail:
+                  msg: "Parent Site '{{ parent_site_name }}' doesn't exist for Site: {{ site_item.parent_name_hierarchy }}"
+            when:
+              - parent_site_id == ''
+
+        when:
+          - local_site_id == ''
+
+      - name: "Site Already exists?"
+        debug:
+            msg: "Site already exists: {{ site_item.parent_name_hierarchy }}"
+            verbosity: 0
+        when:
+          - local_site_id != ''
+
+    when:
+      - site_item.parent_name_hierarchy is defined

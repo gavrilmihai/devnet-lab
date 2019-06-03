@@ -1,0 +1,37 @@
+---
+# ------------------------------------------
+# file: SDA_1_2_8/roles/policy-virtual_networks/tasks/main.yml
+# ver: 1.2.0
+# ansible ver: 2.7.8
+# python ver: 2.7.15
+# dna center ver: 1.2.8
+# dna center rest api ver: 1.0.2
+# author: Pradeep Singh (pradeesi@cisco.com)
+# description: main playbook for the virtual_networks role.
+# DNAC Menu Path: Policy --> Virtual Network
+# ------------------------------------------
+
+  - name: Configure DNA Center Virtual Networks
+    block:
+      - name: Add Virtual Network
+        include_tasks: add_virtual_network.yml
+        with_items: "{{ dnac_config.policy.virtual_networks }}"
+        when: virtual_network.action == 'add'
+        loop_control:
+          loop_var: virtual_network
+
+      - name: Delete Virtual Network
+        include_tasks: delete_virtual_network.yml
+        with_items: "{{ dnac_config.policy.virtual_networks }}"
+        when: virtual_network.action == 'delete'
+        loop_control:
+          loop_var: virtual_network
+
+      - name: Modify Virtual Network
+        include_tasks: modify_virtual_network.yml
+        with_items: "{{ dnac_config.policy.virtual_networks }}"
+        when: virtual_network.action == 'modify'
+        loop_control:
+          loop_var: virtual_network
+    when:
+      - dnac_config.policy.virtual_networks is defined

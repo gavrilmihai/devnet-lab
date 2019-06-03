@@ -1,0 +1,56 @@
+---
+# ------------------------------------------
+# file: SDA_1_2_8/roles/policy-ip_based_access_control-access_contracts/tasks/modify_access_contract.yml
+# ver: 1.2.0
+# ansible ver: 2.7.8
+# python ver: 2.7.15
+# dna center ver: 1.2.8
+# dna center rest api ver: 1.0.2
+# author: Pradeep Singh (pradeesi@cisco.com)
+# description: This playbook will modify an access contract.
+# DNAC Menu Path: Policy --> IP Based Access Control --> Access Contract
+# ------------------------------------------
+
+  - name: "Get Access Contract Details: {{ access_contract.name }}"
+    include_tasks: get_access_contract.yml
+
+  - name: "Modify Access Contract: {{ access_contract.name }}"
+    block:
+      - name: Get Access Contract Protocols
+        include_tasks: get_access_contract_protocols.yml
+
+      - name: Parse Existing Access Contract Settings
+        set_fact:
+          access_contract_name: "{{ get_access_contract_response.json.response[0].name }}"
+          access_contract_instanceVersion: "{{ get_access_contract_response.json.response[0].instanceVersion }}"
+          access_contract_description: "{{ get_access_contract_response.json.response[0].description }}"
+          access_contract_namespace: "{{ get_access_contract_response.json.response[0].namespace }}"
+          access_contract_qualifier: "{{ get_access_contract_response.json.response[0].qualifier }}"
+          access_contract_resourceVersion: "{{ get_access_contract_response.json.response[0].resourceVersion }}"
+          access_contract_type: "{{ get_access_contract_response.json.response[0].type }}"
+          access_contract_clause: "{{ get_access_contract_response.json.response[0].clause[0].access }}"
+
+      - name: Submit Modify Access Contract Task
+        uri:
+          url: https://{{ dnac_credentials.ip_add }}/api/v2/data/customer-facing-service/contract/access/
+          method: PUT
+          validate_certs: no
+          headers:
+            X-Auth-Token: "{{ token.json.Token }}"
+            Content-Type: 'application/json'
+          body_type: json
+          body: "{{ lookup('template', 'get_update_access_contract_json.j2') }}"
+          status_code: 202
+        register: modify_access_contract_response
+
+      - name: Parse Task ID for Access Contract Task
+        set_fact:
+          dnac_task_name: "Modify Access Contract: {{ access_contract.name }}"
+          dnac_task_id: "{{ modify_access_contract_response.json.response.taskId }}"
+
+      - name: Check Modify Access Contract Task Status
+        include_role:
+          name: get_task_status
+    when:
+      - access_contract.action == "modify"
+      - access_contract_id != ''

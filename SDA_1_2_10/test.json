@@ -1,0 +1,21 @@
+https://10.113.102.73/api/v2/ippool
+
+{
+	"ipPoolCidr": "192.168.1.0/25",
+	"ipPoolName": "pool_name",
+	"gateways": [
+		"192.168.1.1"
+	],
+	"dhcpServerIps": [
+		"192.168.2.10",
+		"192.168.2.11",
+		"192.168.2.12"
+	],
+	"dnsServerIps": [
+		"192.168.22.14",
+		"192.168.22.15"
+	],
+	"overlapping": true
+}
+
+https://10.113.102.73/api/v2/ippool/ab996ce3-a654-4a3c-a8fc-212927a1c292

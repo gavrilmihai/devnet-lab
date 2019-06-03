@@ -1,0 +1,53 @@
+---
+# ------------------------------------------
+# file: SDA_1_2_8/roles/design-network_settings-device_credentials/tasks/main.yml
+# ver: 1.2.0
+# ansible ver: 2.7.8
+# python ver: 2.7.15
+# dna center ver: 1.2.8
+# dna center rest api ver: 1.0.2
+# author: Pradeep Singh (pradeesi@cisco.com)
+# description: This role will manage global device credentials.
+# DNAC Menu Path: Design --> Network Settings --> Device Credentials
+# ------------------------------------------
+
+  - name: "Manage Infra Credentials"
+    block:
+
+      - name: "Manage Cli Credentials"
+        block:
+          - include_tasks: manage_cli_credentials.yml
+        when: infra_credentials.cli is defined
+
+      - name: "Manage SNMPv2 Community Read Credentials"
+        block:
+          - include_tasks: manage_snmp_v2c_read_credentials.yml
+        when: infra_credentials.snmpv2_read is defined
+
+      - name: "Manage SNMPv2 Community Write Credentials"
+        block:
+          - include_tasks: manage_snmp_v2c_write_credentials.yml
+        when: infra_credentials.snmpv2_write is defined
+
+      - name: "Manage SNMPv3 Credentials"
+        block:
+          - include_tasks: manage_snmp_v3_credentials.yml
+        when: infra_credentials.snmpv3 is defined
+
+      - name: "Manage HTTP(S) Read Credentials"
+        block:
+          - include_tasks: manage_http_read_credentials.yml
+        when: infra_credentials.http_read is defined
+
+      - name: "Manage HTTP(S) Write Credentials"
+        block:
+          - include_tasks: manage_http_write_credentials.yml
+        when: infra_credentials.http_write is defined
+
+      - name: "Manage Netconf Credentials"
+        block:
+          - include_tasks: manage_netconf_credentials.yml
+        when: infra_credentials.netconf is defined
+
+    when:
+      - infra_credentials is defined

@@ -1,0 +1,35 @@
+---
+# ------------------------------------------
+# file: SDA_1_2_8/roles/design-network_settings-network/tasks/get_network_common_settings.yml
+# ver: 1.2.0
+# ansible ver: 2.7.8
+# python ver: 2.7.15
+# dna center ver: 1.2.8
+# dna center rest api ver: 1.0.2
+# author: Pradeep Singh (pradeesi@cisco.com)
+# description: This task will pull common network settings.
+# DNAC Menu Path: Design --> Network Settings --> Network
+# ------------------------------------------
+
+  - name: "Get Common Settings"
+    block:
+      - name: "Fetch Site Network Settings"
+        uri:
+          url: https://{{ dnac_credentials.ip_add }}/api/v1/commonsetting/global/{{ site_id }}
+          method: GET
+          validate_certs: no
+          headers:
+            X-Auth-Token: "{{ token.json.Token }}"
+            Content-Type: 'application/json'
+          status_code: 200
+        register: get_common_setting_response
+
+      - name: "Fail, if there is no response for this site."
+        block:
+          - fail:
+              msg: "No data available for site: {{ site_id }}"
+        when:
+          - get_common_setting_response.json.response is not defined
+
+    when:
+      - site_id is defined

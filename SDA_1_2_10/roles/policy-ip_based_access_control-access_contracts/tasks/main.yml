@@ -1,0 +1,37 @@
+---
+# ------------------------------------------
+# file: SDA_1_2_8/roles/policy-ip_based_access_control-access_contracts/tasks/main.yml
+# ver: 1.2.0
+# ansible ver: 2.7.8
+# python ver: 2.7.15
+# dna center ver: 1.2.8
+# dna center rest api ver: 1.0.2
+# author: Pradeep Singh (pradeesi@cisco.com)
+# description: This is the main playbook of access_control role.
+# DNAC Menu Path: Policy --> IP Based Access Control --> Access Contract
+# ------------------------------------------
+
+  - name: Configure DNA Center Access Contracts
+    block:
+      - name: Add Access Contract
+        include_tasks: add_access_contract.yml
+        with_items: "{{ dnac_config.policy.ip_based_access_control.access_contracts }}"
+        when: access_contract.action == 'add'
+        loop_control:
+          loop_var: access_contract
+
+      - name: Delete Access Contract
+        include_tasks: delete_access_contract.yml
+        with_items: "{{ dnac_config.policy.ip_based_access_control.access_contracts }}"
+        when: access_contract.action == 'delete'
+        loop_control:
+          loop_var: access_contract
+
+      - name: Modify Access Contract
+        include_tasks: modify_access_contract.yml
+        with_items: "{{ dnac_config.policy.ip_based_access_control.access_contracts }}"
+        when: access_contract.action == 'modify'
+        loop_control:
+          loop_var: access_contract
+    when:
+      - dnac_config.policy.ip_based_access_control.access_contracts is defined

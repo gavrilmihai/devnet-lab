@@ -1,0 +1,189 @@
+---
+
+# Configure Discovery Accounts in 'dnac_infra_credentials.yml' file.
+dnac_create_acccount:
+  create_account: true
+
+
+dnac_discovery_setup:
+  - discovery_name: xyz
+    action: delete
+    ip_address_range:
+      discovery_type:                    #Select only one option out of CDP, LLDP and Range.
+#        cdp:
+#          ip_address: 192.168.3.77
+#          subnet_filters:
+#            - 192.168.1.0/24
+#            - 192.168.2.0/24
+#          cdp_level: 2
+        range:
+          from_to_ip_address:
+            - 192.168.1.10-192.168.1.15
+            - 192.168.2.20-192.168.2.30
+
+#        lldp:
+#          ip_address: 192.168.1.10
+#          subnet_filters:
+#            - 192.168.1.0/24
+#            - 192.168.2.0/24
+#          lldp_level: 16
+      preferred_management_ip: None        #Possible options UseLoopBack or None
+    credentials:
+      cli:
+        username:
+          - cisco
+          - cisco2
+      snmpv2_read:
+        name_description:
+          - snmp_r2
+          - snmp_r1
+      snmpv2_write:
+        name_description:
+          - snmp_w1
+          - snmp_w2
+          - rw
+      snmpv3:
+        username:
+          - pr_sv3_1_un
+          - pr_sv3_2_un
+      http_read:
+        username:
+          - http_r1
+      http_write:
+        username:
+          - http_w1
+      netconf:
+        port:
+          - "9876"              #Enclose Port number in double quotes.
+
+
+    advanced:
+      protocol_order:
+        ssh: true
+        telnet: false
+
+
+dnac_config:
+  design:
+    network_hierarchy:
+      # For Add Operation - arrange site items from Parent to Child sequence
+      # For Delete Operation - arrange site items from Child to Parent direction
+
+            #      - site_type: area
+            # action: delete
+            #parent_name_hierarchy: global/Peutie
+            # - site_type: building
+            #action: delete
+            #parent_name_hierarchy: global/Peutie/B1
+            #address: Peutiesesteenweg 200, Machelen
+            #country: Belgium
+            #latitude:  50.921565
+            #longitude: 4.452580
+      - site_type: building
+        action: delete
+        parent_name_hierarchy: global/Peutie/B2
+        address: Peutiesesteenweg 200, Machelen
+        country: Belgium
+        latitude:  50.93
+        longitude: 4.47
+      - site_type: floor
+        action: delete
+        parent_name_hierarchy: global/Peutie/B1/fl1
+        width: 5
+        length: 4
+        height: 7
+
+      # - site_type: floor
+      #   action: delete
+      #   parent_name_hierarchy: global/a1/b1/fl1
+      # - site_type: building
+      #   action: delete
+      #   parent_name_hierarchy: global/a1/b1
+      # - site_type: area
+      #   action: delete
+      #   parent_name_hierarchy: global/a1
+
+    network_settings:
+      network:
+        - parent_name_hierarchy: global
+          dhcp_server:
+            - 192.168.2.10
+            - 192.168.2.11
+            - 192.168.2.12
+          dns_server:
+            domain_name: microsoft.com
+            primary_ip: 192.168.22.14
+            secondary_ip: 192.168.22.15
+          syslog_server:
+            - 192.168.2.16
+            - 192.168.2.17
+            - 192.168.2.18
+          snmp_server:
+            - 192.168.22.19
+            - 192.168.22.20
+          ntp_server:
+            - 192.168.33.19
+            - 192.168.33.20
+          netflow_collector_server:
+            ip_address: 192.168.22.50
+            port: 2030
+          time_zone: Asia/Dubai
+          message_of_the_day:
+            retain_existing_mod: false
+            message_of_the_day: test mod
+
+      ip_address_pools:
+        - name: pool_name1
+          action: add
+          ip_pool_cidr: 192.168.1.0/25
+          gateways:
+            - 192.168.1.1
+          dhcp_server_ips:
+            - 192.168.2.10
+            - 192.168.2.11
+            - 192.168.2.12
+          dns_server_ips:
+            - 192.168.22.14
+            - 192.168.22.15
+          overlapping: true
+        - name: pool_name2
+          action: delete
+
+
+
+  policy:
+    virtual_networks:
+      - name: test1
+        action: add
+        scalable_groups: [BYOD, Auditors]
+      - name: test2
+        action: delete
+      - name: test4
+        action: modify
+        scalable_groups: [Employees, Guests]
+    ip_based_access_control:
+      access_contracts:
+        - name: ctr1
+          action: add
+          implicit_action: permit
+          description: ansible1
+          rules:
+            - rule: [deny, rtelnet]
+            - rule: [permit, ftp]
+            - rule: [deny, ssh]
+        - name: ctr2
+          action: add
+          implicit_action: permit
+          description: ansible2
+          rules:
+            - rule: [deny, telnet]
+            - rule: [permit, ftp]
+        - name: ctr3
+          action: delete
+        - name: ctr4
+          action: modify
+          implicit_action: permit
+          description: ansible3
+          rules:
+            - rule: [deny, telnet]
+            - rule: [permit, ftp]
